@@ -1,0 +1,79 @@
+from tkinter import *
+from tkinter import filedialog as fd
+import os
+import sys
+import time as t
+import shutil as s
+from datetime import datetime as dt
+import sqlite3
+import sql60a 
+
+
+
+
+class MyFileCheck:
+
+    def __init__(self, master):
+        self.master =master
+        master.title("A file check")
+
+        
+        self.folderA= ''
+        self.folderB= ''
+       
+    
+       
+        self.entry = Entry(master).pack()
+        self.button1= Button(master, text="Check last File Check time", command = sql60a.read_from_db).pack()
+
+        self.entry = Entry(master).pack()
+        self.button2= Button(master, text="Select Folder for Source", command = lambda: self.folderSelect('A')).pack()
+
+        self.entry = Entry(master).pack()
+        self.button3= Button(master, text="Select Folder for Destination", command = lambda:self.folderSelect('B')).pack()
+
+        self.button4= Button(master, text="Perform Copy and save time",command = self.buttonClicked).pack()
+      
+
+
+    def doFileCheck(self):
+        #print('folderA: ' + self.folderA)
+       # print('folderB: ' + self.folderB)
+        now =dt.now()
+        folderA = self.folderA
+        folderB = self.folderB
+        for thefile in os.listdir(folderA):
+            modtime = dt.fromtimestamp(os.stat(folderA + thefile).st_mtime)
+            diff_seconds = (now - modtime).seconds
+            diff_days = (now - modtime).days
+            diff_hours = diff_days*24 + diff_seconds/3600
+            #print('Checking: ' + thefile)
+            #print('Modifed, hours ago: ' + str(diff_hours))
+            if diff_hours < 24:
+                s.copy(folderA + thefile, folderB + thefile)
+               # print('Copied file: ' + thefile)
+               # print('')
+
+    def folderSelect(self,x):
+        if x == 'A':
+             self.folderA = fd.askdirectory() + '/'
+             print=('Source Folder: ' + self.folderA)
+        if x == 'B':
+             self.folderB = fd.askdirectory() + '/'
+             print = ('Destination Folder: ' + self.folderB)
+
+    def buttonClicked(self):
+        sql60a.saved_data_entry()
+        self.doFileCheck()
+        messagebox.showinfo(message = "Files Copied")
+
+    #def redirector(self,inputStr):
+        #self.textbox.insert(INSERT, inputStr)
+
+    #sys.stdout.write = redirector #whenever sys.stdout.write is called, redirector is called.'''
+
+
+
+root = Tk()
+my_gui = MyFileCheck(root)
+root.mainloop()
