@@ -1,0 +1,31 @@
+import sqlite3
+import time 
+import datetime 
+
+
+conn = sqlite3.connect('Filecopy.db')
+c = conn.cursor()
+
+
+def create_table():
+        c.execute('CREATE TABLE IF NOT EXISTS FileTransfertime(unix Real, datestamp TEXT)')
+
+
+def saved_data_entry():
+    unix = time.time()
+    date = str(datetime.datetime.fromtimestamp(unix).strftime('%Y-%m-%d %H:%M:%S'))
+    c.execute("INSERT INTO FileTransfertime(unix,datestamp)\
+    Values(?,?)",(time.time(),date))
+    conn.commit()
+    
+
+def read_from_db():
+     c.execute('SELECT max(unix) FROM FileTransfertime ')
+     data = c.fetchone()
+
+     for row in data:
+        print (time.ctime(data[0]))
+        return time.ctime(data[0])
+
+#def close():
+    
